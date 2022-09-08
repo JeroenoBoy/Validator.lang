@@ -1,0 +1,26 @@
+id: string:
+	size = 16
+	test = ^[0-9a-fA-F]+$
+
+name: string:
+	min = 5
+	max = 16
+
+//settings:
+//	pings: int
+//		max = 5
+//		min = 1
+//
+//	plan: string
+//		max = 5
+//
+//	logs: int
+//		max = 3
+//		min = 1
+//
+//	admin: bool
+
+
+
+array[]:
+	test: string
