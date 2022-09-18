@@ -1,0 +1,20 @@
+Validator {
+	int    id
+	string name @minLength(3) @maxLength(20) @pattern(/^[a-zA-Z0-9]+$/, 'name must only contain letters, numbers, and underscores')
+	int    age  @min(18, "You must be 18 or older")
+	email  email
+	string password @minLength(8) @maxLength(128) @containsLowercase @containsUppercase @containsNumber @containsSpecial
+
+	object address {
+		string street
+		string city
+		string state
+		string zip
+	}	
+
+	// Custom validator, this will call the registered function
+	string someValue @validate(someValidator)
+
+	//	Custom validator is required with an any type
+	any someValue @validate(someValidator)
+}
