@@ -1,187 +1,15 @@
-import { validate } from 'email-validator';
-
-`
-Validator {
-	int    id
-	string name @minLength(3) @maxLength(20) @pattern(/^[a-zA-Z0-9]+$/)
-	int    age  @min(18, "You must be 18 or older")
-	email  email
-	string password @minLength(8) @maxLength(128) @containsLowercase @containsUppercase @containsNumber @containsSpecial
-
-	object address {
-		string street
-		string city
-		string state
-		string zip
-	}	
-
-	// // Custom validator, this will call the registered function
-	// string email @validate(emailValidator)
-}
-`;
-
-
-//	Output: advanced Strict: true
-const validatorForAbove = (input: any, validator: Validator) => {
-
-	const output: AdvancedOutput = {};
-
-	const addError = (key: string, message: string | string[]) => {
-		let target = output;
-
-		if (key != '') {
-			let split = key.split('.');
-			while (split.length > 0) {
-				const next = split.shift()!;
-				if (!target[next]) {
-					target[next] = {};
-				}
-				target = target[next];
-			}
-		}
-
-		if (!target._errors) target._errors = [];
-		if (message instanceof Array) target._errors.push(...message);
-		else target._errors.push(message)
-	}
-
-	if (typeof input !== 'object') {
-		addError('', 'must be an object');
-		return output;
-	}
-
-	if (typeof input.id !== 'number') {
-		addError('id', 'must be a number');
-	}
-
-	if (typeof input.name === 'string') {
-		if (input.name.Length < 3) addError('name', 'must be at least 3 characters');
-		if (input.name.Length < 20) addError('name', 'must be at maximum 20 characters');
-		if (!/^[a-zA-Z0-9_]+$/.test(input.name)) addError('name', 'must only contain letters, numbers, and underscores');
-	}
-	else addError('name', 'name must be a string');
-
-	if (typeof input.age === 'number') {
-		if (input.age < 18) addError('age', 'must be at least 18 years old');
-	}
-	else addError('age', 'must be a number');
-
-	if (typeof input.email === 'string') {
-		if (!validator.emailValidator(input.email)) addError('email', 'must be a valid email address');
-	}
-	else addError('email', 'must be a string');
-
-	if (typeof input.password === 'string') {
-		if (input.password.length < 8) addError('password', 'must be at least 8 characters');
-		if (input.password.length > 128) addError('password', 'must be at maximum 128 characters');
-		if (!/[a-z]/.test(input.password)) addError('password', 'must contain at least one lowercase letter');
-		if (!/[A-Z]/.test(input.password)) addError('password', 'must contain at least one uppercase letter');
-		if (!/[0-9]/.test(input.password)) addError('password', 'must contain at least one number');
-		if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(input.password)) addError('password', 'must contain at least one special character');
-	}
-	else addError('password', 'must be a string');
-
-	if (typeof input.address === 'object') {
-		if (typeof input.address.street !== 'string') addError('address.street', 'must be a string');
-		if (typeof input.address.city !== 'string') addError('address.city', 'must be a string');
-		if (typeof input.address.state !== 'string') addError('address.state', 'must be a string');
-		if (typeof input.address.zip !== 'string') addError('address.zip', 'must be a string');
-		if (Object.keys(input.address).length !== 4) addError('address', 'must contain 4 keys');
-	}
-	else addError('address', 'must be an object');
-
-	if (typeof input.someValue === 'string') {
-		const r = validator.customValidators.get('someValidator')!(input.someValue)
-		if (r !== true) addError('someValue', r);
-	}
-	else addError('someValue', 'must be a string');
-
-	if (typeof input.someValue === 'string') {
-		const r = validator.customValidators.get('someValidator')!(input.someValue)
-		if (r !== true) addError('someValue', r);
-	}
-	else addError('someValue', 'must be a string');
-
-	if (Object.keys(input).length !== 8) addError('', 'must contain 8 keys');
-	return Object.keys(output).length === 0 ? false : output;
-};
-
-class ValidatorError extends Error {
-	constructor(public path: string, message: string) {
-		super(message);
-	}
-}
-
-//	Output: simple Strict: false
-
-const simpleValidatorForAbove = (input: any, validator: Validator) => {
-
-	if (typeof input !== 'object') {
-		return new ValidatorError('input', 'must be an object');
-	}
-
-	if (typeof input.id !== 'number') {
-		return new ValidatorError('input.id', 'must be a number');
-	}
-
-	if (typeof input.name === 'string') {
-		if (input.name.Length < 3) return new ValidatorError('input.name', 'must be at least 3 characters');
-		if (input.name.Length < 20) return new ValidatorError('input.name', 'must be at maximum 20 characters');
-		if (!/^[a-zA-Z][a-zA-Z0-9_]+$/.test(input.name)) return new ValidatorError('input.name', 'must only contain letters, numbers, and underscores');
-	}
-	else return new ValidatorError('input.name', 'must be a string');
-
-	if (typeof input.age === 'number') {
-		if (input.age < 18) return new ValidatorError('age', 'must be at least 18 years old');
-	}
-	else return new ValidatorError('age', 'must be a number');
-
-	if (typeof input.email === 'string') {
-		if (!validator.emailValidator(input.email)) return new ValidatorError('email', 'must be a valid email address');
-	}
-	else return new ValidatorError('email', 'must be a string');
-
-	if (typeof input.password === 'string') {
-		if (input.password.length < 8) return new ValidatorError('password', 'must be at least 8 characters');
-		if (input.password.length > 128) return new ValidatorError('password', 'must be at maximum 128 characters');
-		if (!/[a-z]/.test(input.password)) return new ValidatorError('password', 'must contain at least one lowercase letter');
-		if (!/[A-Z]/.test(input.password)) return new ValidatorError('password', 'must contain at least one uppercase letter');
-		if (!/[0-9]/.test(input.password)) return new ValidatorError('password', 'must contain at least one number');
-		if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(input.password)) return new ValidatorError('password', 'must contain at least one special character');
-	}
-	else return new ValidatorError('password', 'must be a string');
-
-	if (typeof input.address === 'object') {
-		if (typeof input.address.street !== 'string') return new ValidatorError('address.street', 'must be a string');
-		if (typeof input.address.city !== 'string') return new ValidatorError('address.city', 'must be a string');
-		if (typeof input.address.state !== 'string') return new ValidatorError('address.state', 'must be a string');
-		if (typeof input.address.zip !== 'string') return new ValidatorError('address.zip', 'must be a string');
-		if (Object.keys(input.address).length !== 4) return new ValidatorError('address', 'must contain 4 keys');
-	}
-	else return new ValidatorError('address', 'must be an object');
-
-	if (typeof input.someValue === 'string') {
-		const r = validator.customValidators.get('someValidator')!(input.someValue)
-		if (r !== true) return new ValidatorError('someValue', typeof r === 'string' ? r : r[0]);
-	}
-	else return new ValidatorError('someValue', 'must be a string');
-
-	if (typeof input.someValue === 'string') {
-		const r = validator.customValidators.get('someValidator')!(input.someValue)
-		if (r !== true) return new ValidatorError('someValue', typeof r === 'string' ? r : r[0]);
-	}
-	else return new ValidatorError('someValue', 'must be a string');
-
-	if (Object.keys(input).length !== 8) return new ValidatorError('', 'must contain 8 keys');
-	return false;
-}
-
-
+import { BaseType } from './BaseType';
+import { Lexer } from './Parsing/Lexer';
+import { Parser } from './Parsing/Parser';
+import { NumberType } from './types/Number';
+import { StringType } from './types/String';
+import { ValidatorError } from './util/Errors';
 
 
 
 type AdvancedOutput = { [key: string]: AdvancedOutput } & { _errors?: string[] };
 type SimpleOutput = true | string;
+
 
 
 export abstract class Validator {
@@ -191,45 +19,121 @@ export abstract class Validator {
 	public static readonly Error = 'validatorError';
 
 
-	public static buildSimpleValidator() {
 
-	}
+	protected validator: (...args: any) => any;
 
-
-	public static buildAdvancedValidator() {
-
-	}
-
-
-
+	public readonly template: string;
+	public readonly types = new Map<string, BaseType>();
 	public readonly customValidators = new Map<string, (value: any) => true | string | string[]>();
-	public readonly emailValidator = validate;
+	public readonly validatorTypes = new Map<string, (...args: any) => void>();
 	public readonly validatorError = ValidatorError;
 
 
-	public constructor(template: string) {
+	/**
+	 * Create a new validator
+	 * @param template The template to build
+	 * @param addDefaulTypes If the default types should be added
+	 */
+	public constructor(template: string, addDefaulTypes = true) {
+		this.template = template;
+		if (addDefaulTypes) this.addDefaultTypes();
 	}
 
 
+	/**
+	 * Add the default types to the validator
+	 */
+	public addDefaultTypes() {
+		this.addType(new StringType);
+		this.addType(new NumberType);
+	}
+
+
+	/**
+	 * Add a specific type to the validator
+	 */
+	public addType(type: BaseType) {
+		if (this.types.has(type.name)) throw new Error(`Type ${type.name} already exists`);
+		this.types.set(type.name, type);
+	}
+
+
+	/**
+	 * Build the validator
+	 */
+	public build() {
+		console.log('Building');
+		const lexedResult = Lexer.lex(this.template);
+		const validator = Parser.parse(lexedResult, this);
+		this.validator = validator;
+		if (typeof this.validator !== 'function') throw new Error('Validator did not return a function!');
+	}
+
+
+	/**
+	 * Return the template for the validator
+	 */
 	public abstract getTemplate(): string;
+
+
+	/**
+	 * Return the template for a velidator type
+	 */
+	public abstract getValidatorTypeTemplate(): string
+
+
+	/**
+	 * Return the string to run a validator type template
+	 */
+	public abstract getRunValidatorType(name: string, path: string): string
+
+
+	/**
+	 * Create a new error message. the returned string could contain a throw or return.
+	 * @param path The path to the variable
+	 * @param message The error message
+	 */
 	public abstract errorString(path: string, message: string): string
+
+
+	/**
+	 * Validate an input
+	 * @param input the input to validate
+	 */
+	public abstract validate(input: any): true | any
 }
 
 
 
 
-class SimpleValidator extends Validator {
+export class SimpleValidator extends Validator {
 	public getTemplate(): string {
 		return `(${Validator.inputName}, ${Validator.variableName})=>{${Validator.insertCode}return !0}`
 	}
 
+
+	public getValidatorTypeTemplate(): string {
+		return `(${Validator.inputName}, ${Validator.variableName}) => {${Validator.insertCode}}`
+	}
+
+
+	public getRunValidatorType(name: string, path: string): string {
+		return `${Validator.variableName}.validatorTypes.get('${name}')('${path}', ${Validator.variableName})`;
+	}
+
+
 	public errorString(path: string, message: string): string {
 		return `return new ${Validator.variableName}.${Validator.Error}('${path}', '${message}');`;
+	}
+
+	//	@ts-ignore
+	public validate(input: any): SimpleOutput {
+		return this.validator(input, this);
 	}
 }
 
 
-class AdvancedValidator extends Validator {
+export class AdvancedValidator extends Validator {
 	public getTemplate(): string {
 		return `(${Validator.inputName},${Validator.variableName})=>{
 			let o={};
@@ -252,7 +156,25 @@ class AdvancedValidator extends Validator {
 		}`.replaceAll(/(?:^[\t ]+)|(?:[\n\r])/gm, '')
 	}
 
+
+	public getValidatorTypeTemplate(): string {
+		return `(${Validator.inputName}, e, ${Validator.variableName}) => {${Validator.insertCode}}`
+	}
+
+
+	public getRunValidatorType(name: string, path: string): string {
+		return `${Validator.variableName}.validatorTypes.get('${name}')('${path}', e, ${Validator.variableName})`;
+	}
+
+
+
 	public errorString(path: string, message: string): string {
-		return `e(${path}, ${message})`
+		return `e('${path}', '${message}');`
+	}
+
+
+	//@ts-ignore
+	public validate(input: any): AdvancedOutput {
+		return this.validator(input, this);
 	}
 }

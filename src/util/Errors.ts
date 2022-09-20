@@ -21,3 +21,9 @@ export class ParseError extends Error {
 		this.name = 'ParseError'
 	}
 }
+export class ValidatorError extends Error {
+	constructor(public path: string, message: string) {
+		super(message);
+		this.name = 'ValidatorError';
+	}
+}

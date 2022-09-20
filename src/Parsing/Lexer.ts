@@ -19,6 +19,8 @@ export class Lexer {
 		const result: LexedResult = {};
 		const peeker = new Peeker(input);
 
+		peeker.consumeSpaces();
+
 		while (!peeker.isFinished()) {
 			const name = peeker.consumeWord();
 			if (result[name]) throw new LexError(peeker, 'Duplicate valdiator name ' + name);
