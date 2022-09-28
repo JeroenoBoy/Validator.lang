@@ -11,7 +11,7 @@ import { ObjectType } from './types/Object';
 
 
 export type AdvancedOutput = { [key: string]: AdvancedOutput } & { _errors?: string[] };
-export type SimpleOutput = true | string;
+export type SimpleOutput = true | ValidatorError;
 export type CustomValidatorHandler = (value: any) => true | string;
 
 
@@ -161,6 +161,12 @@ export class SimpleValidator extends Validator {
 
 
 export class AdvancedValidator extends Validator {
+
+	constructor(validator: string) {
+		super(validator);
+		throw new Error('This validator is still WIP');
+	}
+
 	public getTemplate(): string {
 		return `(${Validator.inputName},${Validator.variableName})=>{
 			let o={};

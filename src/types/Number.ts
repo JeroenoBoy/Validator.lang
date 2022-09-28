@@ -11,8 +11,8 @@ export class NumberType extends BaseType {
 
 	constructor() {
 		super();
-		this.addAnnotationHandler(this.minSize);
-		this.addAnnotationHandler(this.maxSize);
+		this.addAnnotationHandler(this.min);
+		this.addAnnotationHandler(this.max);
 		this.addAnnotationHandler(this.integer);
 	}
 
@@ -46,7 +46,7 @@ export class NumberType extends BaseType {
 	//	Annotations
 
 
-	public minSize: AnnotationHandler = (path, args, _, valdiator) => {
+	public min: AnnotationHandler = (path, args, _, valdiator) => {
 		if (args.length != 1) throw new ParseError('correct usage is minSize(int size)');
 		if (typeof args[0] !== 'number') throw new ParseError('Argument index 0 must be a number!');
 
@@ -54,7 +54,7 @@ export class NumberType extends BaseType {
 	}
 
 
-	public maxSize: AnnotationHandler = (path, args, _, valdiator) => {
+	public max: AnnotationHandler = (path, args, _, valdiator) => {
 		if (args.length != 1) throw new ParseError('correct usage is maxSize(int size)');
 		if (typeof args[0] !== 'number') throw new ParseError('Argument index 0 must be a number!');
 
