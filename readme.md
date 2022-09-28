@@ -36,6 +36,15 @@ if (result !== true) throw result;
 
 ```
 
+## Planned features
+
+- [ ] Add more validations
+- [ ] Add array support
+- [ ] Finish Advanced validator
+- [ ] Add support for enums
+- [ ] Add support for building validators from a directory
+- [ ] Add types for typescript for builded validators
+
 ## Validators
 
 ### string
