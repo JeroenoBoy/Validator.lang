@@ -1,6 +1,6 @@
 {
   "name": "validatorlang",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Validation language for form bodies",
   "main": "dist/index.js",
   "scripts": {
