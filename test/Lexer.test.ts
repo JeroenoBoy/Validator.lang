@@ -27,4 +27,5 @@ describe('Challenging the lexer', () => {
 
 
 	test.todo('Adding comments');
+	test.todo('Adding array support');
 })

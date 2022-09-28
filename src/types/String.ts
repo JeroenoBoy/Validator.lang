@@ -52,7 +52,8 @@ export class StringType extends BaseType {
 
 	public minLength: AnnotationHandler = (path, args, _, valdiator) => {
 		if (args.length != 1) throw new ParseError('correct usage is minLength(int length)');
-		if (typeof args[0] !== 'number') throw new ParseError('Argument index 0 must be a number!');
+		if (typeof args[0] !== 'number') throw new ParseError('Argument must be a number!');
+		if (args[0] <= 0) throw new ParseError('Argument must be atleast 1')
 
 		return `if(${path}.length < ${args[0]})${valdiator.errorString(path, `must be larger than ${args[0]}`)}`;
 	}
@@ -60,7 +61,8 @@ export class StringType extends BaseType {
 
 	public maxLength: AnnotationHandler = (path, args, _, valdiator) => {
 		if (args.length != 1) throw new ParseError('correct usage is maxLenght(int length)');
-		if (typeof args[0] !== 'number') throw new ParseError('Argument index 0 must be a number!');
+		if (typeof args[0] !== 'number') throw new ParseError('Argument must be a number!');
+		if (args[0] <= 0) throw new ParseError('Argument must be atleast 1')
 
 		return `if(${path}.length > ${args[0]})${valdiator.errorString(path, `must be smaller than ${args[0]}`)}`;
 	}
@@ -87,7 +89,7 @@ export class StringType extends BaseType {
 
 	public containsSpecial: AnnotationHandler = (path, args, _, valdiator) => {
 		if (args.length != 0) throw new ParseError('No arguments allowed for containsSpecial');
-		return `if(!/[!@#$%^&*()_+\\-=\\\\|[\\];':",.\\/<>?]/g.test(${path}))${valdiator.errorString(path, `must contain a special characters`)}`;
+		return `if(!/[!@#$%^&*()_+\\-=\\\\|[\\];':",.\\/<>?]/g.test(${path}))${valdiator.errorString(path, `must contain a special character`)}`;
 	}
 
 
@@ -100,4 +102,10 @@ export class StringType extends BaseType {
 	}
 
 
+
+	public isEmail: AnnotationHandler = (path, args, _, valdiator) => {
+		if (args.length != 0) throw new ParseError('No arguments allowed for isEmail');
+
+		return `if(!${Validator.variableName}.customValidators.get('string:isEmail'))${valdiator.errorString(path, `is not a valid email adress`)}`;
+	}
 }

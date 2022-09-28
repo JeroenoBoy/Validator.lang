@@ -16,7 +16,8 @@ export abstract class BaseType {
 	protected constructor(addDefaultAnnotations: boolean = true) {
 		if (!addDefaultAnnotations) return;
 
-		this.annotationHandlers.set('optional', () => { throw new Error('optional has been handled incorrectly!') });
+		this.addAnnotationHandler('optional', () => { throw new Error('optional has been handled incorrectly!') });
+		this.addAnnotationHandler('custom', this.customAnnotation);
 	}
 
 
@@ -96,5 +97,17 @@ export abstract class BaseType {
 		const result = this.annotationHandlers.get(annotation.name)!(path, annotation.arguments, node, validator);
 		if (typeof result !== 'string') throw new Error(`Annotatio handler ${annotation.name} did not return a string`);
 		return result;
+	}
+
+
+	/**
+	 * Run custom annotations
+	 */
+	public customAnnotation(path: string, args: any[], node: LexedNode, valdiator: Validator): string {
+		if (args.length != 1) throw new ParseError('custom validator handler must have 1 argument');
+		const arg = args[0];
+		if (typeof arg !== 'string') throw new ParseError('custom validator must have a string input');
+		if (!valdiator.customValidators.has(`${node.type}:${arg}`)) throw new ParseError(`Custom validator '${node.type}:${arg}' does not exist`);
+		return valdiator.getCustomValidatorHandler(`${node.type}:${arg}`, path);
 	}
 }

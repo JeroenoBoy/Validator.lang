@@ -13,6 +13,7 @@ export class NumberType extends BaseType {
 		super();
 		this.addAnnotationHandler(this.minSize);
 		this.addAnnotationHandler(this.maxSize);
+		this.addAnnotationHandler(this.integer);
 	}
 
 
@@ -58,5 +59,33 @@ export class NumberType extends BaseType {
 		if (typeof args[0] !== 'number') throw new ParseError('Argument index 0 must be a number!');
 
 		return `if(${path} > ${args[0]})${valdiator.errorString(path, `must be smaller than ${args[0]}`)}`;
+	}
+
+
+	public integer: AnnotationHandler = (path, args, _, valdiator) => {
+		if (args.length != 0) throw new ParseError('correct usage is isInteger()');
+
+		return `if(Number.isInteger(${path}))${valdiator.errorString(path, `must be an integer`)}`;
+	}
+
+
+	public notNan: AnnotationHandler = (path, args, _, valdiator) => {
+		if (args.length != 0) throw new ParseError('correct usage is notNan()');
+
+		return `if(Number.isNan(${path}))${valdiator.errorString(path, `is NaN`)}`;
+	}
+
+
+	public positive: AnnotationHandler = (path, args, _, valdiator) => {
+		if (args.length != 0) throw new ParseError('correct usage is notNan()');
+
+		return `if(${path} < 0)${valdiator.errorString(path, `must be positive`)}`;
+	}
+
+
+	public negative: AnnotationHandler = (path, args, _, valdiator) => {
+		if (args.length != 0) throw new ParseError('correct usage is notNan()');
+
+		return `if(${path} > 0)${valdiator.errorString(path, `must be negative`)}`;
 	}
 }

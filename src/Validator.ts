@@ -1,14 +1,18 @@
 import { BaseType } from './BaseType';
 import { Lexer } from './Parsing/Lexer';
 import { Parser } from './Parsing/Parser';
+import { BooleanType } from './types/Boolean';
 import { NumberType } from './types/Number';
 import { StringType } from './types/String';
 import { ValidatorError } from './util/Errors';
+import { validate as emailValidator } from 'email-validator';
+import { ObjectType } from './types/Object';
 
 
 
-type AdvancedOutput = { [key: string]: AdvancedOutput } & { _errors?: string[] };
-type SimpleOutput = true | string;
+export type AdvancedOutput = { [key: string]: AdvancedOutput } & { _errors?: string[] };
+export type SimpleOutput = true | string;
+export type CustomValidatorHandler = (value: any) => true | string;
 
 
 
@@ -17,6 +21,7 @@ export abstract class Validator {
 	public static readonly insertCode = '<---INSERT--->';
 	public static readonly variableName = 'v';
 	public static readonly Error = 'validatorError';
+	public static readonly tempVariableName = 't';
 
 
 
@@ -24,8 +29,7 @@ export abstract class Validator {
 
 	public readonly template: string;
 	public readonly types = new Map<string, BaseType>();
-	public readonly customValidators = new Map<string, (value: any) => true | string | string[]>();
-	public readonly validatorTypes = new Map<string, (...args: any) => void>();
+	public readonly customValidators = new Map<string, CustomValidatorHandler>();
 	public readonly validatorError = ValidatorError;
 
 
@@ -46,11 +50,19 @@ export abstract class Validator {
 	public addDefaultTypes() {
 		this.addType(new StringType);
 		this.addType(new NumberType);
+		this.addType(new BooleanType);
+		this.addType(new ObjectType);
+
+		this.addValidator('string', 'isEmail', (value: string) => {
+			if (emailValidator(value)) return true;
+			return 'is not a valid email adress';
+		});
 	}
 
 
 	/**
 	 * Add a specific type to the validator
+	 * @param type the type validator
 	 */
 	public addType(type: BaseType) {
 		if (this.types.has(type.name)) throw new Error(`Type ${type.name} already exists`);
@@ -59,14 +71,26 @@ export abstract class Validator {
 
 
 	/**
+	 * Add a new validator to the list
+	 * @param type The type the validator should add to
+	 * @param name The name of the validator
+	 * @param handler The handler of the validator
+	 */
+	public addValidator(type: string, name: string, handler: CustomValidatorHandler) {
+		if (this.customValidators.has(`${type}:${name}`)) throw new Error(`Custom validator '${type}:${name}' already exists`);
+		this.customValidators.set(`${type}:${name}`, handler);
+	}
+
+
+	/**
 	 * Build the validator
 	 */
 	public build() {
-		console.log('Building');
 		const lexedResult = Lexer.lex(this.template);
 		const validator = Parser.parse(lexedResult, this);
 		this.validator = validator;
 		if (typeof this.validator !== 'function') throw new Error('Validator did not return a function!');
+		return this;
 	}
 
 
@@ -77,7 +101,7 @@ export abstract class Validator {
 
 
 	/**
-	 * Return the template for a velidator type
+	 * Return the template for a vladator type
 	 */
 	public abstract getValidatorTypeTemplate(): string
 
@@ -85,7 +109,7 @@ export abstract class Validator {
 	/**
 	 * Return the string to run a validator type template
 	 */
-	public abstract getRunValidatorType(name: string, path: string): string
+	public abstract getCustomValidatorHandler(name: string, path: string): string
 
 
 	/**
@@ -108,17 +132,20 @@ export abstract class Validator {
 
 export class SimpleValidator extends Validator {
 	public getTemplate(): string {
-		return `(${Validator.inputName}, ${Validator.variableName})=>{${Validator.insertCode}return !0}`
+		return `(${Validator.inputName}, ${Validator.variableName})=>{${Validator.insertCode}return!0}`
 	}
 
 
 	public getValidatorTypeTemplate(): string {
-		return `(${Validator.inputName}, ${Validator.variableName}) => {${Validator.insertCode}}`
+		return `(${Validator.inputName}, ${Validator.variableName}) => {${Validator.insertCode}return!0}`
 	}
 
 
-	public getRunValidatorType(name: string, path: string): string {
-		return `${Validator.variableName}.validatorTypes.get('${name}')('${path}', ${Validator.variableName})`;
+	public getCustomValidatorHandler(name: string, path: string): string {
+		return `{
+			const ${Validator.tempVariableName}=${Validator.variableName}.customValidators.get('${name}')(${path}, ${Validator.variableName});
+			if(${Validator.tempVariableName}!==true)return new ${Validator.variableName}.${Validator.Error}('${path}', ${Validator.tempVariableName});
+		}`.replaceAll(/(?:^[\t ]+)|(?:[\n\r])/gm, '');
 	}
 
 
@@ -148,8 +175,7 @@ export class AdvancedValidator extends Validator {
 					}
 				}
 				if(!t._errors)t._errors=[];
-				if(m instanceof Array)t._errors.push(...m);
-				else t._errors.push(m);
+				t._errors.push(m);
 			};
 			${Validator.insertCode}
 			return o
@@ -162,8 +188,8 @@ export class AdvancedValidator extends Validator {
 	}
 
 
-	public getRunValidatorType(name: string, path: string): string {
-		return `${Validator.variableName}.validatorTypes.get('${name}')('${path}', e, ${Validator.variableName})`;
+	public getCustomValidatorHandler(name: string, path: string): string {
+		return `${Validator.variableName}.validatorTypes.get('${name}')('${path}', e, ${Validator.variableName});`;
 	}
 
 

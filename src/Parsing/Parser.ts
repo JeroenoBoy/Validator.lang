@@ -1,3 +1,4 @@
+import { Annotation } from '../Annotation';
 import { ParseError } from '../util/Errors';
 import { Validator } from '../Validator';
 import { LexedNode, LexedResult } from './Lexer';
@@ -15,25 +16,23 @@ export class Parser {
 	 */
 	public static parse(lexedResult: LexedResult, validator: Validator): (...args: any) => any {
 		let mainValidator: LexedNode[] | undefined = undefined;
-		let types: LexedResult = {};
 
 		//	Seperating and parsing the validator types from the main validator
 
 		for (const [key, value] of Object.entries(lexedResult)) {
 			if (key === 'Validator') mainValidator = value;
-			else this.createValidatorType(key, types, validator);
+			else this.createValidatorType(key, lexedResult, validator);
 		}
 
 		//	Parsing the main validator
 
 		if (!Array.isArray(mainValidator)) throw new Error('Main validator not found');
 
-		let result = this.parseNodes(Validator.inputName, types, mainValidator, validator);
+		let result = this.parseNodes(Validator.inputName, lexedResult, mainValidator, validator);
 		result = validator.getTemplate().replace(Validator.insertCode, result);
 
-		//	Evaluating the result
-
 		console.log(result);
+		//	Evaluating the result
 
 		const evaluated = eval(result);
 		if (typeof evaluated !== 'function') throw new Error(`Evaluator did not return a function on 'Main Validator'`);
@@ -62,7 +61,7 @@ export class Parser {
 
 		//	Adding to the list
 
-		valdiator.validatorTypes.set(key, evaluated);
+		valdiator.addValidator('object', key, evaluated);
 	}
 
 
@@ -90,8 +89,9 @@ export class Parser {
 			//	Check validator types
 
 			else if (types[node.type]) {
-				const key = node.type;
-				result += `${validator.getRunValidatorType(key, varPath)}`
+				node.annotations.push(new Annotation('custom', [node.type]));
+				node.type = 'object'
+				result += validator.types.get('object')!.parse(varPath, node, validator)
 			}
 
 			//	Something didn't go as planned

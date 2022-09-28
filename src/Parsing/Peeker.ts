@@ -22,8 +22,8 @@ export class Peeker {
 	public isFinished(): boolean { return this.index >= this.input.length }
 
 
-	public peek() {
-		return this.input[this.index]
+	public peek(foreseight: number = 0) {
+		return this.input[this.index + foreseight]
 	}
 
 
@@ -50,6 +50,14 @@ export class Peeker {
 	public consumeWord() {
 		let word = '';
 		while (/[a-zA-Z0-9_!#\$%&]/.test(this.peek())) word += this.consume();
+		return word;
+	}
+
+
+	public peekWord() {
+		let i = this.index;
+		let word = '';
+		while (/[a-zA-Z0-9_!#\$%&]/.test(this.peek(i))) word += this.peek(i++);
 		return word;
 	}
 }
