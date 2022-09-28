@@ -14,6 +14,9 @@ export class NumberType extends BaseType {
 		this.addAnnotationHandler(this.min);
 		this.addAnnotationHandler(this.max);
 		this.addAnnotationHandler(this.integer);
+		this.addAnnotationHandler(this.notNan);
+		this.addAnnotationHandler(this.positive);
+		this.addAnnotationHandler(this.negative);
 	}
 
 
