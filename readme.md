@@ -8,7 +8,7 @@ This package is still in development, so it may have some bugs.
 
 ```js
 
-import { SimpleValidator } from 'validator.lang'
+import { SimpleValidator } from 'validatorlang'
 
 const validator = new SimpleValidator(`
 	Validator {
