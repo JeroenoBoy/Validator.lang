@@ -19,7 +19,7 @@ describe('Challenging the parser', () => {
 			password: "Aa0)12345678"
 		})
 
-		expect(v).toBe(true);
+		expect(v).toBe(false);
 
 		v = validator.validate({
 			name: "ab",
@@ -56,7 +56,7 @@ describe('Challenging the parser', () => {
 			username: 'My Username',
 			age: 123,
 			hasPremium: false
-		})).toBe(true)
+		})).toBe(false)
 	});
 
 
@@ -82,11 +82,28 @@ describe('Challenging the parser', () => {
 				name: 'John wick',
 				created: Date.now()
 			}
-		})).toBe(true)
+		})).toBe(false)
 	})
 
 
-	test.todo('Testing Arrays')
+	describe('Array validation', () => {
+		const validator = new SimpleValidator('Validator { string[] names @maxLength(5) }').build();
+
+		expect(validator.validate({
+			names: [
+				'John', 'Erica', 'Marin', 'Arjen', 'Tim', 'Damian'
+			]
+		})).toBeInstanceOf(ValidatorError);
+
+		expect(validator.validate({
+			names: [
+				'John', 'Erica', 'Marin', 'Arjen', 'Tim'
+			]
+		})).toBe(false);
+	});
+
+
+
 	test.todo('Testing Advanced validator')
 	test.todo('Testing object length restrictions')
 });

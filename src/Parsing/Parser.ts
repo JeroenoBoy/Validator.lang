@@ -31,7 +31,6 @@ export class Parser {
 		let result = this.parseNodes(Validator.inputName, lexedResult, mainValidator, validator);
 		result = validator.getTemplate().replace(Validator.insertCode, result);
 
-		console.log(result);
 		//	Evaluating the result
 
 		const evaluated = eval(result);

@@ -17,7 +17,7 @@ export abstract class BaseType {
 		if (!addDefaultAnnotations) return;
 
 		this.addAnnotationHandler('optional', () => { throw new Error('optional has been handled incorrectly!') });
-		this.addAnnotationHandler('custom', this.customAnnotation);
+		this.addAnnotationHandler('custom', (a, b, c, d) => this.customAnnotation(a, b, c, d));
 	}
 
 
@@ -73,7 +73,7 @@ export abstract class BaseType {
 
 			if (arg == undefined || arg === false) {
 				//	@ts-ignore
-				return `typeof ${path}!=='string'&&typeof ${path}!=='undefined'`
+				return `typeof ${path}!=='${type}'&&typeof ${path}!=='undefined'`
 			}
 			else if (arg === true) {
 				throw new Error('This option has not been implemented yet')

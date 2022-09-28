@@ -15,6 +15,11 @@ export class Lexer {
 	private constructor() { }
 
 
+	/**
+	 * Lex a validator
+	 * @param input The current validator
+	 * @returns The current validator
+	 */
 	public static lex(input: string) {
 		const result: LexedResult = {};
 		const peeker = new Peeker(input);
@@ -25,11 +30,13 @@ export class Lexer {
 			const name = peeker.consumeWord();
 			if (result[name]) throw new LexError(peeker, 'Duplicate valdiator name ' + name);
 
+
+
 			peeker.consumeSpaces();
 			if (peeker.consume() != '{') throw new LexError(peeker, 'Missing \'{\'');
 			peeker.consumeSpaces();
 
-			result[name] = this.lexNode(peeker);
+			result[name] = this.lexNodes(peeker);
 			peeker.consumeSpaces();
 		}
 
@@ -37,7 +44,12 @@ export class Lexer {
 	}
 
 
-	public static lexNode(peeker: Peeker): LexedNode[] {
+	/**
+	 * Lex all nodes in an object
+	 * @param peeker The current peeker
+	 * @returns The nodes in the object
+	 */
+	public static lexNodes(peeker: Peeker): LexedNode[] {
 		const nodes = new Array<LexedNode>();
 
 		while (peeker.peek() != '}') {
@@ -46,11 +58,33 @@ export class Lexer {
 
 			//	Getting name and type
 
+			node.annotations = [];
+
+			//	Adding type
+
 			node.type = peeker.consumeWord();
 			peeker.consumeSpaces();
+
+			//	Checking if array
+
+			if (peeker.peek() === '[') {
+				if (peeker.peek(1) !== ']') throw new LexError(peeker, 'Expected ]');
+				peeker.consume(); peeker.consume();
+
+				node.annotations.push({
+					name: 'type',
+					arguments: [node.type]
+				});
+
+				node.type = 'Array';
+				peeker.consumeSpaces();
+			}
+
+			//	Getting name
+
+			if (!peeker.isWordCharacter(peeker.peek())) throw new LexError(peeker, 'Expected a word');
 			node.name = peeker.consumeWord();
 			peeker.consumeSpaces();
-			node.annotations = [];
 
 			//	Parsing annotations
 
@@ -65,7 +99,7 @@ export class Lexer {
 			if (peeker.peek() === '{') {
 				peeker.consume();
 				peeker.consumeSpaces();
-				node.children = this.lexNode(peeker);
+				node.children = this.lexNodes(peeker);
 			}
 
 			nodes.push(node);
@@ -78,6 +112,11 @@ export class Lexer {
 	}
 
 
+	/**
+	 * Lex an annotation
+	 * @param peeker The current peeker
+	 * @returns The lexed annotation
+	 */
 	public static lexAnnotation(peeker: Peeker): Annotation {
 		//	@ts-ignore
 		const annotation = new Annotation();
@@ -116,6 +155,11 @@ export class Lexer {
 	}
 
 
+	/**
+	 * Lex an argument of unkown type
+	 * @param peeker The current peeker
+	 * @returns The parsed argument
+	 */
 	public static lexArgument(peeker: Peeker): AnnotationArgument {
 		const arg = peeker.peek();
 
@@ -128,6 +172,11 @@ export class Lexer {
 	}
 
 
+	/**
+	 * Parse a string
+	 * @param peeker The current peeker
+	 * @returns The string
+	 */
 	public static lexString(peeker: Peeker): string {
 		const quote = peeker.consume();
 
@@ -148,6 +197,11 @@ export class Lexer {
 	}
 
 
+	/**
+	 * Parse a number
+	 * @param peeker The current peeker
+	 * @returns The number
+	 */
 	public static lexNumber(peeker: Peeker): number {
 		let num = '';
 
@@ -170,6 +224,11 @@ export class Lexer {
 	}
 
 
+	/**
+	 * Parse a boolean
+	 * @param peeker The current peeker
+	 * @returns The boolean
+	 */
 	public static lexBooleanOrNull(peeker: Peeker): boolean | null {
 		const word = peeker.consumeWord();
 
@@ -190,7 +249,11 @@ export class Lexer {
 	}
 
 
-
+	/**
+	 * Parse a regular expression
+	 * @param peeker The current peeker
+	 * @returns The regex
+	 */
 	public static lexRegExp(peeker: Peeker): RegExp {
 		const slash = peeker.consume();
 

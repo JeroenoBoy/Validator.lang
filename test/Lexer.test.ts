@@ -26,6 +26,26 @@ describe('Challenging the lexer', () => {
 	});
 
 
+	test.each([
+		['Array array @type("string")'],
+		['string[] array']
+	])('Testing array format %s', (format) => {
+		const result = Lexer.lex(`Validator { ${format} }`)
+		expect(result).toMatchObject({
+			Validator: [
+				{
+					type: 'Array',
+					name: 'array',
+					annotations: [{
+						name: 'type',
+						arguments: ['string']
+					}]
+				}
+			]
+		});
+	})
+
+
 	test.todo('Adding comments');
 	test.todo('Adding array support');
 })

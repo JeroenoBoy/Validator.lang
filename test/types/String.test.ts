@@ -16,8 +16,8 @@ describe('String annotations', () => {
 
 			expect(validator.validate({ string: '1234' })).toBeInstanceOf(ValidatorError);
 			expect(validator.validate({ string: 3 })).toBeInstanceOf(ValidatorError);
-			expect(validator.validate({ string: '123456' })).toBe(true);
-			expect(validator.validate({ string: '12345' })).toBe(true);
+			expect(validator.validate({ string: '123456' })).toBe(false);
+			expect(validator.validate({ string: '12345' })).toBe(false);
 		});
 	});
 
@@ -36,8 +36,8 @@ describe('String annotations', () => {
 
 			expect(validator.validate({ string: '123456' })).toBeInstanceOf(ValidatorError);
 			expect(validator.validate({ string: 8 })).toBeInstanceOf(ValidatorError);
-			expect(validator.validate({ string: '1234' })).toBe(true);
-			expect(validator.validate({ string: '12345' })).toBe(true);
+			expect(validator.validate({ string: '1234' })).toBe(false);
+			expect(validator.validate({ string: '12345' })).toBe(false);
 		});
 	});
 
@@ -51,13 +51,13 @@ describe('String annotations', () => {
 			expect(() => new SimpleValidator(`Validator{string string @pattern(/[a-z]/gis)}`).build()).not.toThrow();
 		});
 		test('Functionality', () => {
-			const validator = new SimpleValidator(`Validator{string string @pattern(/^[a-z]{2}-$[a-z]{6}/i)}`).build();
+			const validator = new SimpleValidator(`Validator{string string @pattern(/^[a-z]{2}-[a-z]{6}$/i)}`).build();
 
 			expect(validator.validate({ string: '123456' })).toBeInstanceOf(ValidatorError);
 			expect(validator.validate({ string: 8 })).toBeInstanceOf(ValidatorError);
-			expect(validator.validate({ string: '34-eharha' })).toBe(false);
-			expect(validator.validate({ string: 'ae-ghedhd' })).toBe(true);
-			expect(validator.validate({ string: 'bf-eharha' })).toBe(true);
+			expect(validator.validate({ string: '34-eharha' })).toBeInstanceOf(ValidatorError);
+			expect(validator.validate({ string: 'ae-ghedhd' })).toBe(false);
+			expect(validator.validate({ string: 'bf-eharha' })).toBe(false);
 		});
 	});
 
@@ -76,9 +76,9 @@ describe('String annotations', () => {
 		});
 
 		const validator = new SimpleValidator(`Validator{string string ${type}}`).build();
-		test.each(tests)('Functionality for "%s"', (str, result) => {
-			if (result) expect(validator.validate(str)).toBe(true)
-			else expect(validator.validate(str)).toBeInstanceOf(ValidatorError)
+		test.each(tests)('Functionality for "%s"', (string, result) => {
+			if (result) expect(validator.validate({ string })).toBe(false)
+			else expect(validator.validate({ string })).toBeInstanceOf(ValidatorError)
 		});
 	});
 });

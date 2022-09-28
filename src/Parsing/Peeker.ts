@@ -49,7 +49,7 @@ export class Peeker {
 
 	public consumeWord() {
 		let word = '';
-		while (/[a-zA-Z0-9_!#\$%&]/.test(this.peek())) word += this.consume();
+		while (/[a-zA-Z0-9_!#:\$%&]/.test(this.peek())) word += this.consume();
 		return word;
 	}
 
@@ -59,5 +59,10 @@ export class Peeker {
 		let word = '';
 		while (/[a-zA-Z0-9_!#\$%&]/.test(this.peek(i))) word += this.peek(i++);
 		return word;
+	}
+
+
+	public isWordCharacter(character: string): boolean {
+		return /[a-zA-Z0-9_!#\$%&]/.test(character)
 	}
 }

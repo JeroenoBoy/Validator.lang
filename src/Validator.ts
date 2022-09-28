@@ -7,12 +7,13 @@ import { StringType } from './types/String';
 import { ValidatorError } from './util/Errors';
 import { validate as emailValidator } from 'email-validator';
 import { ObjectType } from './types/Object';
+import { ArrayType } from './types/Array';
 
 
 
 export type AdvancedOutput = { [key: string]: AdvancedOutput } & { _errors?: string[] };
 export type SimpleOutput = true | ValidatorError;
-export type CustomValidatorHandler = (value: any) => true | string;
+export type CustomValidatorHandler = (value: any) => false | string;
 
 
 
@@ -52,9 +53,10 @@ export abstract class Validator {
 		this.addType(new NumberType);
 		this.addType(new BooleanType);
 		this.addType(new ObjectType);
+		this.addType(new ArrayType);
 
 		this.addValidator('string', 'isEmail', (value: string) => {
-			if (emailValidator(value)) return true;
+			if (emailValidator(value)) return false;
 			return 'is not a valid email adress';
 		});
 	}
@@ -132,19 +134,19 @@ export abstract class Validator {
 
 export class SimpleValidator extends Validator {
 	public getTemplate(): string {
-		return `(${Validator.inputName}, ${Validator.variableName})=>{${Validator.insertCode}return!0}`
+		return `(${Validator.inputName}, ${Validator.variableName})=>{${Validator.insertCode}return!1}`
 	}
 
 
 	public getValidatorTypeTemplate(): string {
-		return `(${Validator.inputName}, ${Validator.variableName}) => {${Validator.insertCode}return!0}`
+		return `(${Validator.inputName}, ${Validator.variableName})=>{${Validator.insertCode}return!1}`
 	}
 
 
 	public getCustomValidatorHandler(name: string, path: string): string {
 		return `{
 			const ${Validator.tempVariableName}=${Validator.variableName}.customValidators.get('${name}')(${path}, ${Validator.variableName});
-			if(${Validator.tempVariableName}!==true)return new ${Validator.variableName}.${Validator.Error}('${path}', ${Validator.tempVariableName});
+			if(${Validator.tempVariableName}!==false)return new ${Validator.variableName}.${Validator.Error}('${path}', ${Validator.tempVariableName});
 		}`.replaceAll(/(?:^[\t ]+)|(?:[\n\r])/gm, '');
 	}
 
