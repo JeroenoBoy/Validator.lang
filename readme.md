@@ -38,20 +38,22 @@ if (result !== true) throw result;
 
 ## Planned features
 
-- [ ] Add more validations
+- [ ] Add more annotations and types
 - [x] Add array support
 - [ ] Finish Advanced validator
 - [ ] Add support for enums
 - [ ] Add support for building validators from a directory
 - [ ] Add types for typescript for builded validators
+- [ ] Add support for maps / dictionaries
+- [ ] Better error handling for ParseErrors
 
-## Validators
+## Types
 
 ### string
 
-Normal behaviour: Checks if the value is a string.
+Checks if the value is a string.
 
-extra validators:
+Annotations:
 ```
 @minLength(int size) - Minimum length of the string
 @maxLength(int size) - Maximum length of the string
@@ -64,25 +66,40 @@ extra validators:
 
 ### number
 
-normal behaviour: Checks if the value is a number.
+Checks if the value is a number.
 
-extra validators:
+Annotations:
 ```
 @min(int size) - Minimum value of the number
 @max(int size) - Maximum value of the number
 @integer - Checks if the number is an integer
+@notNan - checks if the number is not NaN
+@positive - Checks if the number is positive
+@negative - Checks if the number is negative
 ```
 
 ### bool
 
-normal behaviour: Checks if the value is a boolean.
+Checks if the value is a boolean.
 
-### Object
+### object
 
-normal behaviour: Checks if the value is an object.
+Checks if the value is an object.
+
+### Array
+
+Checks if the value is an Array.
+
+Annotations:
+```
+@minLength(int size) - Minimum length of the array
+@maxLength(int size) - Maximum length of the array
+@item:(annotation) - Checks the annotation on the array items, this is specific per type
+-- Example: @item:@minLength(5)
+```
 
 
-## Global validators
+### Global Annotations
 
 ```
 @optional - Makes the type optional (has no default implementation, must be handled by the Type)

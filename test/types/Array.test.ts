@@ -41,7 +41,7 @@ describe('Array annotations', () => {
 	});
 
 	test('Testing field validators', () => {
-		const validator = new SimpleValidator(`Validator{string[] vals @maxLength(5) @field:maxLength(5)}`).build();
+		const validator = new SimpleValidator(`Validator{string[] vals @maxLength(5) @item:maxLength(5)}`).build();
 
 		expect(validator.validate({ vals: ['abc', 'abc', 'abcde'] })).toBe(false);
 		expect(validator.validate({ vals: ['abc', 'abc', 'abcde', 'abcd', 'aera'] })).toBe(false);

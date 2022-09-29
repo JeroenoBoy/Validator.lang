@@ -22,8 +22,7 @@ export abstract class Validator {
 	public static readonly insertCode = '<---INSERT--->';
 	public static readonly variableName = 'v';
 	public static readonly Error = 'validatorError';
-	public static readonly tempVariableName = 't';
-
+	protected static readonly tempVariablePrefix = 't';
 
 
 	protected validator: (...args: any) => any;
@@ -32,6 +31,8 @@ export abstract class Validator {
 	public readonly types = new Map<string, BaseType>();
 	public readonly customValidators = new Map<string, CustomValidatorHandler>();
 	public readonly validatorError = ValidatorError;
+
+	protected tempVarIndex = 0;
 
 
 	/**
@@ -97,6 +98,14 @@ export abstract class Validator {
 
 
 	/**
+	 * New variable name
+	 */
+	public uniqueVarName() {
+		return `${Validator.tempVariablePrefix}${this.tempVarIndex++}`;
+	}
+
+
+	/**
 	 * Return the template for the validator
 	 */
 	public abstract getTemplate(): string;
@@ -144,9 +153,10 @@ export class SimpleValidator extends Validator {
 
 
 	public getCustomValidatorHandler(name: string, path: string): string {
+		const varName = this.uniqueVarName();
 		return `{
-			const ${Validator.tempVariableName}=${Validator.variableName}.customValidators.get('${name}')(${path}, ${Validator.variableName});
-			if(${Validator.tempVariableName}!==false)return new ${Validator.variableName}.${Validator.Error}('${path}', ${Validator.tempVariableName});
+			const ${varName}=${Validator.variableName}.customValidators.get('${name}')(${path}, ${Validator.variableName});
+			if(${varName}!==false)return new ${Validator.variableName}.${Validator.Error}('${path}', ${varName});
 		}`.replaceAll(/(?:^[\t ]+)|(?:[\n\r])/gm, '');
 	}
 

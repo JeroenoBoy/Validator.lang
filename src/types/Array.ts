@@ -41,16 +41,16 @@ export class ArrayType extends BaseType {
 
 		//	Checking annotations
 
-		let varName = Validator.tempVariableName;
+		let varName = validator.uniqueVarName();
 		result += optional ? 'else{' : `else if(Array.isArray(${path})){`
 
-		const fieldAnnotations = new Array<Annotation>();
+		const itemAnnotations = new Array<Annotation>();
 
 		for (const annotation of annotations) {
 			if (annotation.name === 'optional' || annotation.name === 'type') continue;
-			if (annotation.name.startsWith('field:')) {
-				annotation.name = annotation.name.substring(6);
-				fieldAnnotations.push(annotation);
+			if (annotation.name.startsWith('item:')) {
+				annotation.name = annotation.name.substring(5);
+				itemAnnotations.push(annotation);
 				continue;
 			}
 			result += this.runAnnotationHandler(annotation, path, node, validator);
@@ -60,7 +60,7 @@ export class ArrayType extends BaseType {
 		result += typeValidator.parse(`${path}[${varName}]`, {
 			type: typeName,
 			name: varName,
-			annotations: fieldAnnotations
+			annotations: itemAnnotations
 		}, validator);
 
 		result += '}}';

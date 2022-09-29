@@ -16,12 +16,22 @@ export class Parser {
 	 */
 	public static parse(lexedResult: LexedResult, validator: Validator): (...args: any) => any {
 		let mainValidator: LexedNode[] | undefined = undefined;
+		let customTypes: LexedResult = {};
 
 		//	Seperating and parsing the validator types from the main validator
 
 		for (const [key, value] of Object.entries(lexedResult)) {
 			if (key === 'Validator') mainValidator = value;
-			else this.createValidatorType(key, lexedResult, validator);
+			else {
+				customTypes[key] = value;
+				validator.addValidator('object', key, () => 'Did not override object validator');
+			}
+		}
+
+		//	Creating types
+
+		for (const [key] of Object.entries(customTypes)) {
+			this.createValidatorType(key, lexedResult, validator);
 		}
 
 		//	Parsing the main validator
@@ -60,7 +70,7 @@ export class Parser {
 
 		//	Adding to the list
 
-		valdiator.addValidator('object', key, evaluated);
+		valdiator.customValidators.set(`object:${key}`, evaluated);
 	}
 
 
@@ -78,9 +88,37 @@ export class Parser {
 		for (const node of nodes) {
 			const varPath = `${path}.${node.name}`
 
+			//	Check array types
+
+			if (node.type === 'Array') {
+				const typeArgument = node.annotations.find(t => t.name === 'type');
+				if (!typeArgument) throw new ParseError('Node has no type annotation');
+				const typeName = typeArgument.arguments[0];
+				if (typeof typeName !== 'string') throw new ParseError('@type must have 1 string argument');
+
+				//	Checking if the types has the argument
+
+				if (validator.types.has(typeName)) {
+					const type = validator.types.get(node.type)!;
+					result += type.parse(varPath, node, validator);
+				}
+
+				//	Checking if objects has the argument
+
+				else if (types[typeName]) {
+					typeArgument.arguments[0] = 'object';
+					node.annotations.push(new Annotation('item:custom', [typeName]));
+					const type = validator.types.get(node.type)!;
+					result += type.parse(varPath, node, validator);
+
+				}
+
+				else throw new ParseError(`Type '${typeName}' could not be found!`)
+			}
+
 			//	Check normal types
 
-			if (validator.types.has(node.type)) {
+			else if (validator.types.has(node.type)) {
 				const type = validator.types.get(node.type)!;
 				result += type.parse(varPath, node, validator);
 			}

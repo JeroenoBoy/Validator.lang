@@ -30,8 +30,6 @@ export class Lexer {
 			const name = peeker.consumeWord();
 			if (result[name]) throw new LexError(peeker, 'Duplicate valdiator name ' + name);
 
-
-
 			peeker.consumeSpaces();
 			if (peeker.consume() != '{') throw new LexError(peeker, 'Missing \'{\'');
 			peeker.consumeSpaces();

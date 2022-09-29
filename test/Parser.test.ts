@@ -86,7 +86,7 @@ describe('Challenging the parser', () => {
 	})
 
 
-	describe('Array validation', () => {
+	test('Array validation', () => {
 		const validator = new SimpleValidator('Validator { string[] names @maxLength(5) }').build();
 
 		expect(validator.validate({
@@ -100,6 +100,75 @@ describe('Challenging the parser', () => {
 				'John', 'Erica', 'Marin', 'Arjen', 'Tim'
 			]
 		})).toBe(false);
+	});
+
+
+	describe('Multiple variables in the parser', () => {
+		test('with object[] declerations', () => {
+			const validator = new SimpleValidator(`
+				Validator {
+					object[] cards @item:custom("Card")
+				}
+				Effect {
+					string type @pattern(/^(?:nerf)|(?:buff)$/)
+					string calc @pattern(/^\\\\+|\\\\-|\\\\*$/)
+					number amount @min(0)
+					string unit @maxLength(1)
+				}
+				Card {
+					string name
+					string rarity @pattern(/^(?:(?:un)?common)|(?:rare)|(?:legendary)$/)
+					object[] effects @item:custom("Effect")
+				}
+			`).build();
+
+			expect(() => validator.validate({
+				cards: [{
+					name: 'abc',
+					rarity: 'uncommon',
+					effects: [{
+						type: 'buff',
+						calc: '+',
+						amount: 5,
+						unit: 'm'
+					}]
+				}]
+			})).not.toThrow();
+		});
+
+
+		test('Without T[] declerations', () => {
+			const validator = new SimpleValidator(`
+				Validator {
+					Card[] cards
+				}
+				Card {
+					string name
+					string rarity @pattern(/^(?:(?:un)?common)|(?:rare)|(?:legendary)$/)
+					Effect[] effects
+				}
+				Effect {
+					string type @pattern(/^(?:nerf)|(?:buff)$/)
+					string calc @pattern(/^\\\\+|\\\\-|\\\\*$/)
+					number amount @min(0)
+					string unit @maxLength(1)
+				}
+			`).build();
+
+			expect(() => validator.validate({
+				cards: [{
+					name: 'abc',
+					rarity: 'uncommon',
+					effects: [{
+						type: 'buff',
+						calc: '+',
+						amount: 5,
+						unit: 'm'
+					}]
+				}]
+			})).not.toThrow();
+		});
+
 	});
 
 
