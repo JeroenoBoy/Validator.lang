@@ -1,12 +1,12 @@
 {
   "name": "validatorlang",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Validation language for form bodies",
   "main": "dist/index.js",
   "scripts": {
     "prebuild": "ts-node scripts/prebuild.ts",
     "build": "tsc",
-    "prepublish": "build && ts-node scripts/prepublish.ts",
+    "prepublish": "yarn build && ts-node scripts/prepublish.ts",
     "postpublish": "ts-node scripts/postpublish.ts",
     "test": "jest",
     "test:watch": "jest --watch",
