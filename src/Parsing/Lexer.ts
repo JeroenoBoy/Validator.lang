@@ -162,7 +162,7 @@ export class Lexer {
 		const arg = peeker.peek();
 
 		if (arg === '\'' || arg === '"') return this.lexString(peeker);
-		if (/[0-9.]/.test(arg)) return this.lexNumber(peeker);
+		if (/[\-0-9.]/.test(arg)) return this.lexNumber(peeker);
 		if (/[tfynof]/.test(arg)) return this.lexBooleanOrNull(peeker);
 		if (arg === '/') return this.lexRegExp(peeker);
 
@@ -202,6 +202,8 @@ export class Lexer {
 	 */
 	public static lexNumber(peeker: Peeker): number {
 		let num = '';
+
+		if (peeker.peek() === '-') num += peeker.consume();
 
 		while (/[0-9_]/.test(peeker.peek())) {
 			const char = peeker.consume();

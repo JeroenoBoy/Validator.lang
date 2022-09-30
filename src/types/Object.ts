@@ -21,7 +21,6 @@ export class ObjectType extends BaseType {
 		const optional = annotations.find(t => t.name === 'optional');
 		let result = `if(${this.simpleStatementValidator(path, 'object', optional)})${validator.errorString(path, 'must be an object')}`;
 
-
 		//	Checking annotations
 
 		if (annotations.length > 0) {

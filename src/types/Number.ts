@@ -68,14 +68,14 @@ export class NumberType extends BaseType {
 	public integer: AnnotationHandler = (path, args, _, valdiator) => {
 		if (args.length != 0) throw new ParseError('correct usage is isInteger()');
 
-		return `if(Number.isInteger(${path}))${valdiator.errorString(path, `must be an integer`)}`;
+		return `if(!Number.isInteger(${path}))${valdiator.errorString(path, `must be an integer`)}`;
 	}
 
 
 	public notNan: AnnotationHandler = (path, args, _, valdiator) => {
 		if (args.length != 0) throw new ParseError('correct usage is notNan()');
 
-		return `if(Number.isNan(${path}))${valdiator.errorString(path, `is NaN`)}`;
+		return `if(Number.isNaN(${path}))${valdiator.errorString(path, `is NaN`)}`;
 	}
 
 

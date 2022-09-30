@@ -53,6 +53,18 @@ export abstract class BaseType {
 
 
 	/**
+	 * Parses the path to something more readable for the user
+	 * @param path the current variable path
+	 * @example i.users[t0] -> i.users[2]
+	 */
+	public parseErrorPath(path: string) {
+		const match = path.replaceAll(/\[(t[0-9]+)\]/, '[`${$1}`]');
+		if (!match) return path;
+
+	}
+
+
+	/**
 	 * Get common statement parameter with optional checks 
 	 * @param path The path of the variable
 	 * @param type The type to use for typeof
