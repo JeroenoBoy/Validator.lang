@@ -37,7 +37,7 @@ export class ArrayType extends BaseType {
 
 		//	Starting building
 
-		let result = `if(!Array.isArray(${path})${optional?.arguments[0] ? `&&typeof ${path}!=='undefined'` : ''})${validator.errorString(path, 'must be a string')}`
+		let result = `if(!Array.isArray(${path})${optional?.arguments[0] ? `&&typeof ${path}!=='undefined'` : ''})${validator.errorString(path, 'must be an array')}`
 
 		//	Checking annotations
 

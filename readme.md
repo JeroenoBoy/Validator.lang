@@ -46,6 +46,7 @@ if (result !== true) throw result;
 - [ ] Add types for typescript for builded validators
 - [ ] Add support for maps / dictionaries
 - [ ] Better error handling for ParseErrors
+- [ ] Macros (ex: macro string Username @minLength(3) @maxLength(20) @pattern(/^[a-z0-9_]+$/i))
 
 ## Types
 

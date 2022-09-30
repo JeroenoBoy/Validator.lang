@@ -19,7 +19,7 @@ export class ObjectType extends BaseType {
 	public parse(path: string, node: LexedNode, validator: Validator): string {
 		const annotations = node.annotations;
 		const optional = annotations.find(t => t.name === 'optional');
-		let result = `if(${this.simpleStatementValidator(path, 'object', optional)})${validator.errorString(path, 'must be a object')}`;
+		let result = `if(${this.simpleStatementValidator(path, 'object', optional)})${validator.errorString(path, 'must be an object')}`;
 
 
 		//	Checking annotations
