@@ -4,7 +4,10 @@
   "description": "Validation language for form bodies",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p .",
+    "prebuild": "ts-node scripts/prebuild.ts",
+    "build": "tsc",
+    "prepublish": "build && ts-node scripts/prepublish.ts",
+    "postpublish": "ts-node scripts/postpublish.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest coverage"
