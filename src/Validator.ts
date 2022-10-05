@@ -12,7 +12,7 @@ import { ArrayType } from './types/Array';
 
 
 export type AdvancedOutput = { [key: string]: AdvancedOutput } & { _errors?: string[] };
-export type SimpleOutput = true | ValidatorError;
+export type SimpleOutput = false | ValidatorError;
 export type CustomValidatorHandler = (value: any) => false | string;
 
 
