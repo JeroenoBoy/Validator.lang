@@ -32,7 +32,7 @@ export class NumberType extends BaseType {
 		//	Checking annotations
 
 		if (annotations.length > 0) {
-			result += optional ? 'else{' : `else if(typeof ${path}==='number'){`
+			result += optional ? `else if(typeof ${path}==='number'){` : 'else{'
 
 			for (const annotation of annotations) {
 				if (annotation.name === 'optional') continue;

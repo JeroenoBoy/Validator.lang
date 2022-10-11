@@ -33,7 +33,7 @@ export class StringType extends BaseType {
 		//	Checking annotations
 
 		if (annotations.length > 0) {
-			result += optional ? 'else{' : `else if(typeof ${path}==='string'){`
+			result += optional ? `else if(typeof ${path}==='string'){` : 'else{'
 
 			for (const annotation of annotations) {
 				if (annotation.name === 'optional') continue;

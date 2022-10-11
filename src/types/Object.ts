@@ -24,7 +24,7 @@ export class ObjectType extends BaseType {
 		//	Checking annotations
 
 		if (annotations.length > 0) {
-			result += optional ? 'else{' : `else if(typeof ${path}==='object'){`
+			result += optional ? `else if(typeof ${path}==='object'){` : 'else{'
 
 			for (const annotation of annotations) {
 				if (annotation.name === 'optional') continue;

@@ -42,7 +42,7 @@ export class ArrayType extends BaseType {
 		//	Checking annotations
 
 		let varName = validator.uniqueVarName();
-		result += optional ? 'else{' : `else if(Array.isArray(${path})){`
+		result += optional ? `else if(Array.isArray(${path})){` : 'else{'
 
 		const itemAnnotations = new Array<Annotation>();
 
